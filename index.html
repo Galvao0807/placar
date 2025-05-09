@@ -5,7 +5,7 @@
   <link rel="stylesheet" type="text/css" href="estilos.css">
   <title>Placar de Vôlei</title>
   <style>
- body {
+    body {
       font-family: Arial, sans-serif;
       background: #f5f5f5;
       text-align: center;
@@ -89,7 +89,6 @@
       margin-top: 0;
     }
   </style>
-  </style>
 </head>
 <body>
   <div class="scoreboard">
@@ -145,14 +144,14 @@
     function updateDisplay() {
       document.getElementById('teamAScore').innerText = points.A;
       document.getElementById('teamBScore').innerText = points.B;
-      document.getElementById('sets').innerText = Sets: A(${sets.A}) - B(${sets.B});
-      document.getElementById('fouls').innerText = Faltas: A(${fouls.A}) - B(${fouls.B});
+      document.getElementById('sets').innerText = `Sets: A(${sets.A}) - B(${sets.B})`;
+      document.getElementById('fouls').innerText = `Faltas: A(${fouls.A}) - B(${fouls.B})`;
     }
 
     function addPoint(team) {
       if (gameOver) return;
       points[team]++;
-      logEvent(${getTeamName(team)} marcou ponto);
+      logEvent(`${getTeamName(team)} marcou ponto`);
       checkSetEnd();
       updateDisplay();
     }
@@ -160,14 +159,14 @@
     function removePoint(team) {
       if (gameOver || points[team] <= 0) return;
       points[team]--;
-      logEvent(${getTeamName(team)} perdeu 1 ponto);
+      logEvent(`${getTeamName(team)} perdeu 1 ponto`);
       updateDisplay();
     }
 
     function addFoul(team) {
       if (gameOver) return;
       fouls[team]++;
-      logEvent(${getTeamName(team)} cometeu uma falta);
+      logEvent(`${getTeamName(team)} cometeu uma falta`);
       updateDisplay();
     }
 
@@ -178,21 +177,21 @@
 
       if ((points.A >= maxPoints || points.B >= maxPoints) && diff >= 2) {
         sets[leader]++;
-        logEvent(${getTeamName(leader)} venceu o set ${currentSet});
-        showMessage(Fim do Set ${currentSet}: ${getTeamName(leader)} venceu);
+        logEvent(`${getTeamName(leader)} venceu o set ${currentSet}`);
+        showMessage(`Fim do Set ${currentSet}: ${getTeamName(leader)} venceu`);
         currentSet++;
         points = { A: 0, B: 0 };
 
         if (sets[leader] === 3) {
           gameOver = true;
-          showMessage(${getTeamName(leader)} venceu a partida!);
-          logEvent(Partida encerrada! Vitória de ${getTeamName(leader)}.);
+          showMessage(`${getTeamName(leader)} venceu a partida!`);
+          logEvent(`Partida encerrada! Vitória de ${getTeamName(leader)}.`);
         }
       }
     }
 
     function getTeamName(letter) {
-      return document.getElementById(team${letter}Name).value;
+      return document.getElementById(`team${letter}Name`).value;
     }
 
     function showMessage(msg) {
@@ -202,7 +201,7 @@
     function formatTime(sec) {
       const m = String(Math.floor(sec / 60)).padStart(2, '0');
       const s = String(sec % 60).padStart(2, '0');
-      return ${m}:${s};
+      return `${m}:${s}`;
     }
 
     function startTimer() {
@@ -228,7 +227,7 @@
       const logList = document.getElementById('logList');
       const time = formatTime(seconds);
       const entry = document.createElement('li');
-      entry.textContent = [${time}] ${msg};
+      entry.textContent = `[${time}] ${msg}`;
       logList.prepend(entry);
     }
 
