@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="estilos.css">
+  <title>Placar de Vôlei</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .scoreboard {
+      max-width: 850px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .team-section {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+    }
+
+    .team {
+      flex: 1;
+      margin: 10px;
+    }
+
+    .team input {
+      font-size: 1.2em;
+      padding: 5px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .score {
+      font-size: 2.5em;
+      margin: 10px 0;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .timer {
+      font-size: 2em;
+      margin: 20px 0;
+    }
+
+    .data {
+      margin-top: 20px;
+      font-size: 1.1em;
+    }
+
+    #message {
+      font-size: 1.2em;
+      color: green;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    #log {
+      margin-top: 20px;
+      text-align: left;
+      background: #f0f0f0;
+      padding: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      border-radius: 8px;
+      font-size: 0.95em;
+    }
+
+    #log h3 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="scoreboard">
+    <h1>Placar de Vôlei</h1>
+
+    <div class="team-section">
+      <div class="team" id="teamA">
+        <input type="text" id="teamAName" value="Time A">
+        <div class="score" id="teamAScore">0</div>
+        <button onclick="addPoint('A')">+1 Ponto</button>
+        <button onclick="removePoint('A')">−1 Ponto</button>
+        <button onclick="addFoul('A')">+1 Falta</button>
+      </div>
+
+      <div class="team" id="teamB">
+        <input type="text" id="teamBName" value="Time B">
+        <div class="score" id="teamBScore">0</div>
+        <button onclick="addPoint('B')">+1 Ponto</button>
+        <button onclick="removePoint('B')">−1 Ponto</button>
+        <button onclick="addFoul('B')">+1 Falta</button>
+      </div>
+    </div>
+
+    <div class="timer">
+      Tempo: <span id="time">00:00</span><br>
+      <button onclick="startTimer()">Iniciar</button>
+      <button onclick="pauseTimer()">Pausar</button>
+      <button onclick="resetTimer()">Zerar</button>
+    </div>
+
+    <div class="data">
+      <span id="sets">Sets: A(0) - B(0)</span> |
+      <span id="fouls">Faltas: A(0) - B(0)</span>
+    </div>
+
+    <div id="message"></div>
+
+    <div id="log">
+      <h3>Log de Eventos</h3>
+      <ul id="logList"></ul>
+    </div>
+  </div>
+
+  <script>
+    let points = { A: 0, B: 0 };
+    let sets = { A: 0, B: 0 };
+    let fouls = { A: 0, B: 0 };
+    let currentSet = 1;
+    let gameOver = false;
+    let seconds = 0;
+    let timerInterval;
+
+    function updateDisplay() {
+      document.getElementById('teamAScore').innerText = points.A;
+      document.getElementById('teamBScore').innerText = points.B;
+      document.getElementById('sets').innerText = Sets: A(${sets.A}) - B(${sets.B});
+      document.getElementById('fouls').innerText = Faltas: A(${fouls.A}) - B(${fouls.B});
+    }
+
+    function addPoint(team) {
+      if (gameOver) return;
+      points[team]++;
+      logEvent(${getTeamName(team)} marcou ponto);
+      checkSetEnd();
+      updateDisplay();
+    }
+
+    function removePoint(team) {
+      if (gameOver || points[team] <= 0) return;
+      points[team]--;
+      logEvent(${getTeamName(team)} perdeu 1 ponto);
+      updateDisplay();
+    }
+
+    function addFoul(team) {
+      if (gameOver) return;
+      fouls[team]++;
+      logEvent(${getTeamName(team)} cometeu uma falta);
+      updateDisplay();
+    }
+
+    function checkSetEnd() {
+      const maxPoints = currentSet === 5 ? 15 : 25;
+      const diff = Math.abs(points.A - points.B);
+      const leader = points.A > points.B ? 'A' : 'B';
+
+      if ((points.A >= maxPoints || points.B >= maxPoints) && diff >= 2) {
+        sets[leader]++;
+        logEvent(${getTeamName(leader)} venceu o set ${currentSet});
+        showMessage(Fim do Set ${currentSet}: ${getTeamName(leader)} venceu);
+        currentSet++;
+        points = { A: 0, B: 0 };
+
+        if (sets[leader] === 3) {
+          gameOver = true;
+          showMessage(${getTeamName(leader)} venceu a partida!);
+          logEvent(Partida encerrada! Vitória de ${getTeamName(leader)}.);
+        }
+      }
+    }
+
+    function getTeamName(letter) {
+      return document.getElementById(team${letter}Name).value;
+    }
+
+    function showMessage(msg) {
+      document.getElementById('message').innerText = msg;
+    }
+
+    function formatTime(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return ${m}:${s};
+    }
+
+    function startTimer() {
+      if (timerInterval || gameOver) return;
+      timerInterval = setInterval(() => {
+        seconds++;
+        document.getElementById('time').innerText = formatTime(seconds);
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      seconds = 0;
+      document.getElementById('time').innerText = "00:00";
+    }
+
+    function logEvent(msg) {
+      const logList = document.getElementById('logList');
+      const time = formatTime(seconds);
+      const entry = document.createElement('li');
+      entry.textContent = [${time}] ${msg};
+      logList.prepend(entry);
+    }
+
+    updateDisplay();
+  </script>
+</body>
+</html>
